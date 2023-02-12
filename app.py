@@ -1,48 +1,81 @@
-from flask import Flask,request
-from flask_restful import Resource, Api
 import os
+import json
+from flask import Flask
+from flask_graphql import GraphQLView
+import graphene
 
 app = Flask(__name__)
-api = Api(app)
 
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
+class Item(graphene.ObjectType):
+    name = graphene.String()
+    price = graphene.Float()
+    quantity = graphene.Int()
 
-api.add_resource(HelloWorld, '/')
+class Cart(graphene.ObjectType):
+    items = graphene.List(Item)
+    total = graphene.Float()
 
-
-class Cart(Resource):
     def __init__(self):
         self.filename = 'cart.txt'
-        self.items = []
+        self.items = self.resolve_items()
+        self.total = sum(item.price * item.quantity for item in self.items) * 1.05
+
+    def resolve_items(self):
+        items = []
         if os.path.exists(self.filename):
             with open(self.filename, 'r') as f:
-                self.items = [eval(line.strip()) for line in f]
+                items = [json.loads(line.strip()) for line in f]
+        return [Item(**item) for item in items]
 
-    def get(self):
-        return {'items': self.items, 'total': self.calculate_total()}
-
-    def post(self):
-        item = request.get_json()
-        self.items.append(item)
+    def add_item(self, name, price, quantity):
+        item = {'name': name, 'price': price, 'quantity': quantity}
         with open(self.filename, 'a') as f:
-            f.write(str(item) + '\n')
-        return {'item': item, 'total': self.calculate_total()}, 201
+            f.write(json.dumps(item) + '\n')
 
-    def delete(self):
-        self.items = []
+    def empty_cart(self):
         open(self.filename, 'w').close()
-        return {'message': 'Cart is now empty'}
 
-    def calculate_total(self):
-        total = 0
-        for item in self.items:
-            total += item['price'] * item['quantity']
-        return total * 1.05  # Add 5% tax
+class AddItemMutation(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        price = graphene.Float(required=True)
+        quantity = graphene.Int(required=True)
 
+    success = graphene.Boolean()
 
-api.add_resource(Cart, '/cart')
+    def mutate(self, info, name, price, quantity):
+        cart = Cart()
+        cart.add_item(name=name, price=price, quantity=quantity)
+        return AddItemMutation(success=True)
+
+class EmptyCartMutation(graphene.Mutation):
+    success = graphene.Boolean()
+
+    def mutate(self, info):
+        cart = Cart()
+        cart.empty_cart()
+        return EmptyCartMutation(success=True)
+
+class MyMutations(graphene.ObjectType):
+    add_item = graphene.Field(AddItemMutation)
+    empty_cart = graphene.Field(EmptyCartMutation)
+
+class Query(graphene.ObjectType):
+    cart = graphene.Field(Cart)
+
+    def resolve_cart(self, info):
+        return Cart()
+
+schema = graphene.Schema(query=Query, mutation=MyMutations)
+
+app.add_url_rule(
+    '/graphql',
+    view_func=GraphQLView.as_view(
+        'graphql',
+        schema=schema,
+        graphiql=True
+    )
+)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
