@@ -35,5 +35,13 @@ class CartTestCase(unittest.TestCase):
 
         self.assertEqual(len(items), 0)
 
+    def test_calculate_total(self):
+        self.cart.add_item('item1', 10, 1)
+        self.cart.add_item('item2', 20, 2)
+
+        total = self.cart.total
+
+        self.assertEqual(total, 52.5)
+
 if __name__ == '__main__':
     unittest.main()

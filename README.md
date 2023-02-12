@@ -34,9 +34,9 @@ source ./bin/activate
 
 pip install -r requirements.txt
 
-## Runnign tests
+## Running tests
 
-python test_helloworld.py 
+./run_tests.sh
 
 ## Running locally
 
