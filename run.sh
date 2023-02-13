@@ -1,1 +1,2 @@
-python app.py
+echo > cart.txt
+python app/app.py
