@@ -1,17 +1,17 @@
-# Use an official Python runtime as the base image
-FROM python:3.9-slim-buster
+FROM python:3.8-alpine
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements.txt file to the container
 COPY requirements.txt .
 
-# Install the required packages
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
-# Copy the application code to the container
-COPY . .
+COPY app app
+COPY tests tests
 
-# Specify the command to run when the container starts
+ENV FLASK_APP=app/app.py
+ENV FLASK_ENV=development
+
+EXPOSE 5000
+
 CMD ["flask", "run", "--host=0.0.0.0"]
