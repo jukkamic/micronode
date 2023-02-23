@@ -66,6 +66,16 @@ mutation {
     }
 }
  ```
+ Query cart:
+ ``` 
+ query {
+          cart {
+            name
+            price
+            quantity
+          }
+        }
+ ```
 
 ## Built With
 
