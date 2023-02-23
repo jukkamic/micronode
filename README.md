@@ -49,7 +49,21 @@ pip install -r requirements.txt
 
 python app.py 
 
-http://127.0.0.1:5000/
+http://127.0.0.1:5000/graphql
+
+To add product to cart:
+
+mutation {
+  
+    addItem(name:"a",price:10.0,quantity:3){
+    	cartItem{
+        name
+        price
+        quantity
+    
+      }
+    }
+}
 
 ## Built With
 
