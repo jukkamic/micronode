@@ -28,26 +28,35 @@ A step by step series of examples that tell you how to get a development environ
 
 1. Clone the repository to your local machine:
 
+```bash
 git clone https://github.com/vvarimosap/micronode.git
-
+```
 
 2. Create a virtual environment and activate it
 
+```bash
 python -m venv micronode
 source ./bin/activate
-
+```
 
 3. Install the required packages
 
+```bash
 pip install -r requirements.txt
+```
 
 ## Running tests
 
+```bash
 ./run_tests.sh
+```
+
 
 ## Running locally
 
+```bash
 python app.py 
+```
 
 http://127.0.0.1:5000/graphql
 
