@@ -53,6 +53,7 @@ http://127.0.0.1:5000/graphql
 
 To add product to cart:
 
+'''
 mutation {
   
     addItem(name:"a",price:10.0,quantity:3){
@@ -64,6 +65,7 @@ mutation {
       }
     }
 }
+'''
 
 ## Built With
 
